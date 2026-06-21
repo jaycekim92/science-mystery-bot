@@ -43,8 +43,8 @@ SLACK_BOT_TOKEN=xxx SLACK_CHANNEL=C123 \
 ## ⚙️ 설정 (1회, 사용자 작업)
 1. **GitHub public 푸시** — 이 리포를 원격(public)에 올린다. 카드 이미지를 raw URL로 슬랙에 띄우려면 public 필요.
 2. **슬랙 webhook** — 검토 채널의 incoming webhook URL → `SLACK_WEBHOOK_URL`.
-3. **발행 루틴 등록** — `ROUTINE_PROMPT.md` 내용으로 Claude 루틴 등록(매일) + 환경변수 설정.
-4. **소재 보충 루틴 등록** — `ADD_TOPICS_PROMPT.md` 내용으로 주 1회 루틴 등록 (소재 풀 자동 확장).
+3. **발행 루틴 (원격·매일)** — `ROUTINE_PROMPT.md`로 Claude 루틴 등록. cloud라 앱 꺼져도 자동. env 설정.
+4. **소재 보충 (로컬·주 1회)** — `ADD_TOPICS_PROMPT.md` 따라 로컬에서 직접 실행. 새 소재를 눈으로 검토 후 push.
 
 ## 소재 보충 (2단 체계)
 - **풀 게이지**: 발행 메시지에 "남은 소재 N/전체" 표시, 7개 이하면 ⚠️ 보충 경고.

@@ -1,15 +1,12 @@
-# 소재 보충 루틴 프롬프트
+# 소재 보충 — 로컬 실행 가이드 (주 1회)
 
-발행 루틴과 **별개**의 루틴. 주 1회(또는 슬랙에 "소재 보충 필요" 경고가 뜰 때) 실행해
-소재 풀이 마르지 않게 새 소재를 발굴·검증·추가한다.
+발행 루틴은 원격(cloud)이지만, **보충은 로컬에서 주 1회 직접 실행**한다.
+새 소재가 풀에 **영구 추가**되므로, 자동으로 흘려보내지 말고 네 눈을 한 번 거치는 게 안전하다.
+(발행 메시지에 "⚠️ 소재 보충 필요"가 뜨면 그때 돌려도 된다.)
 
-등록 주기 권장: **주 1회** (예: 매주 월요일 오전 10시).
+실행 방법: 매주 1회, 로컬에서 claude에게 아래를 시키거나 직접 진행한다.
 
----
-
-커뮤니티 봇 "그거 왜 그래?"의 소재 풀을 보충한다. 순서:
-
-1. `cd ~/science-mystery-bot && git pull` (클라우드 새 환경이면 `pip3 install -r requirements.txt`)
+1. `cd ~/science-mystery-bot && git pull` (최초 1회만 `pip3 install -r requirements.txt`)
 2. `topics_pool.csv` 를 읽어 **기존 phenomenon 목록**과 **category·question_type 분포**를 파악한다.
 3. **부족한 category / question_type을 우선** 채우는 방향으로, 기존과 겹치지 않는
    "일상 미스터리 과학" 소재 **5~8개**를 발굴한다.
@@ -21,14 +18,9 @@
 5. 검증된 소재를 10필드 JSON 배열로 `candidates.json` 에 저장한다:
    `[{category, phenomenon, hook, explanation, status, source, source_url, question_type, closing_question, image_keyword}]`
    - image_keyword: 무료스톡 영어 2~3개. **사람이 주인공인 주제는 portrait/face/person** 계열로.
-6. `python3 add_topics.py --file candidates.json` 실행 (CSV에 추가, id 자동·중복 자동 스킵).
-7. `git add topics_pool.csv && git commit -m "topics: +N" && git push`
-8. `add_topics.py` 가 출력한 "추가된 소재 목록"을 `SLACK_WEBHOOK_URL` 로 전송해 사람이 사후 확인하게 한다.
+6. `python3 add_topics.py --file candidates.json` (CSV에 추가, id 자동·중복 자동 스킵).
+7. **추가된 소재를 직접 눈으로 검토한다** (로컬이니 바로 확인 가능). 이상 없으면:
+   `git add topics_pool.csv && git commit -m "topics: +N" && git push`
+   → push 해야 원격 발행 루틴이 새 소재를 받는다.
 
-추가된 소재도 **실제 발행 시 슬랙 검토를 한 번 더 거치므로**(이중 안전망),
-이 단계는 "검증 후 자동 추가 + 사후 보고"로 운영한다.
-
----
-
-## 필요 환경변수
-- `SLACK_WEBHOOK_URL` — 보충 결과 보고용 (발행 루틴과 동일)
+로컬 실행이라 사후 보고가 따로 필요 없다(네가 바로 보니까). 발행 단계의 검토와 합쳐 **이중 안전망**.
