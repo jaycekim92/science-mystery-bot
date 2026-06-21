@@ -158,21 +158,21 @@ def build(row):
     TX = 110       # 제목 좌측(악센트 바 공간)
     brand = os.environ.get("BRAND_LABEL", "그거 왜 그래?")  # 상단 브랜드 라벨
 
-    # 상단 라벨 가독성: 이미지 모드는 반투명 pill 배경을 깐다
+    # 상단 라벨: 우측 정렬 (브랜드 + 부제)
+    subtitle = os.environ.get("BRAND_SUB", "흥미로운 과학 이야기")
+    RX = W - 64  # 우측 기준선
     if mode == "image":
-        badge_txt = f"· {BADGE.get(row['status'], row['status'])}"
         pill_w = max(draw.textlength(brand, font=font(40)),
-                     draw.textlength(badge_txt, font=font(27))) + 52
+                     draw.textlength(subtitle, font=font(24))) + 52
+        x2 = W - 38
         ov = Image.new("RGBA", img.size, (0, 0, 0, 0))
-        ImageDraw.Draw(ov).rounded_rectangle([56, 72, 56 + pill_w, 192], radius=22, fill=(0, 0, 0, 120))
+        ImageDraw.Draw(ov).rounded_rectangle([x2 - pill_w, 70, x2, 176], radius=22, fill=(0, 0, 0, 120))
         img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
         draw = ImageDraw.Draw(img)
 
-    # 브랜드 라벨 + 상태 배지
-    draw.text((80, 84), brand, font=font(40), fill=(255, 255, 255),
+    draw.text((RX, 82), brand, font=font(40), anchor="ra", fill=(255, 255, 255),
               stroke_width=2, stroke_fill=K)
-    badge = BADGE.get(row["status"], row["status"])
-    draw.text((80, 146), f"· {badge}", font=font(27), fill=(255, 217, 138),
+    draw.text((RX, 134), subtitle, font=font(24), anchor="ra", fill=(255, 217, 138),
               stroke_width=1, stroke_fill=K)
 
     # 하단: 제목(phenomenon, 강조) + 후킹(hook)
