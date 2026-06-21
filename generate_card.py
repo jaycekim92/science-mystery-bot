@@ -159,7 +159,7 @@ def build(row):
     brand = os.environ.get("BRAND_LABEL", "그거 왜 그래?")  # 상단 브랜드 라벨
 
     # 상단 라벨: 우측 정렬 (브랜드 + 부제)
-    subtitle = os.environ.get("BRAND_SUB", "흥미로운 과학 이야기")
+    subtitle = os.environ.get("BRAND_SUB", "일상 속 과학 미스터리")
     RX = W - 64  # 우측 기준선
     if mode == "image":
         pill_w = max(draw.textlength(brand, font=font(40)),
