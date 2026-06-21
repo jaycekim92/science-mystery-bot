@@ -14,13 +14,17 @@
 3. `POST_GUIDE.md` 의 3단 구조·톤 규칙을 **반드시 지켜** 피드 본문을 작성한다.
    - 단정 금지(가설은 "가장 유력한 설명은~"), "과학자도 아직 몰라요"식 표현 금지, 통념반전 적극 활용.
 4. `python3 generate_card.py <id>` 로 카드 이미지를 생성한다.
-5. `python3 notify_slack.py <id> --body "<작성한 본문>"` 로 슬랙 검토 채널에 전송한다.
-6. 발행 이력이 바뀌었으면 `git add state/history.json && git commit -m "log: <id>" && git push` 로 기록을 보존한다.
+5. `git add cards/card_<id>.png state/history.json && git commit -m "post <id>" && git push` —
+   카드를 먼저 push 해야 슬랙이 raw URL로 이미지를 띄울 수 있다.
+6. `python3 notify_slack.py <id> --body "<작성한 본문>"` 로 슬랙 검토 채널에 전송한다.
 
-게시(아고라 발행)는 사람이 슬랙에서 승인한 뒤 하므로, 루틴은 5번까지만 한다.
+게시(아고라 발행)는 사람이 슬랙에서 승인한 뒤 하므로, 루틴은 6번까지만 한다.
 
 ---
 
 ## 필요 환경변수 (루틴 실행 환경에 설정)
-- `SLACK_BOT_TOKEN` — 슬랙 봇 토큰 (files:write, chat:write 권한)
-- `SLACK_CHANNEL` — 검토 채널 ID 또는 이름
+- `SLACK_WEBHOOK_URL` — 슬랙 incoming webhook URL (검토 채널)
+- (선택) `GIT_RAW_BASE` — 카드 raw URL 베이스. 미설정 시 git remote에서 자동 구성.
+
+## 전제
+- 리포가 **GitHub public**에 push 돼 있어야 카드 raw URL이 무인증으로 열린다.

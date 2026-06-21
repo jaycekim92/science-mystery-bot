@@ -39,9 +39,11 @@ SLACK_BOT_TOKEN=xxx SLACK_CHANNEL=C123 \
 ```
 
 ## ⚙️ 설정 (1회, 사용자 작업)
-1. **GitHub 푸시** — 이 리포를 원격에 올린다 (루틴이 `git pull` 하려면 필요).
-2. **슬랙 봇** — `files:write`, `chat:write` 권한 봇 생성 → `SLACK_BOT_TOKEN`, `SLACK_CHANNEL` 확보.
-3. **루틴 등록** — `ROUTINE_PROMPT.md` 내용으로 Claude 루틴 등록 + 위 환경변수 설정.
+1. **GitHub public 푸시** — 이 리포를 원격(public)에 올린다. 카드 이미지를 raw URL로 슬랙에 띄우려면 public 필요.
+2. **슬랙 webhook** — 검토 채널의 incoming webhook URL → `SLACK_WEBHOOK_URL`.
+3. **루틴 등록** — `ROUTINE_PROMPT.md` 내용으로 Claude 루틴 등록 + 환경변수 설정.
+
+> 카드 이미지는 슬랙 incoming webhook의 파일첨부 불가 제약 때문에, 리포에 push 된 카드의 GitHub raw URL을 image 블록으로 첨부한다.
 
 ## 다음 단계
 - 아고라 자동 발행(승인 후 게시) 연동 — 게시 방법 확정 후.

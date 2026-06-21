@@ -2,5 +2,5 @@ __pycache__/
 *.pyc
 .DS_Store
 .env
-cards/*.png
 cards/*.svg
+cards/post_*.png
