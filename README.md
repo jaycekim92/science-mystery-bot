@@ -27,6 +27,8 @@
 | `notify_slack.py` | 카드+본문 슬랙 검토 전송 |
 | `POST_GUIDE.md` | 본문 톤·포맷 가이드 (루틴이 따름) |
 | `ROUTINE_PROMPT.md` | 루틴 등록용 프롬프트 |
+| `add_topics.py` | 검증된 새 소재를 CSV에 추가 (id 자동·중복 스킵) |
+| `ADD_TOPICS_PROMPT.md` | 소재 보충 루틴 프롬프트 (주 1회) |
 | `preview_post.py` | 피드 게시물 미리보기 목업 |
 
 ## 로컬 테스트
@@ -41,7 +43,13 @@ SLACK_BOT_TOKEN=xxx SLACK_CHANNEL=C123 \
 ## ⚙️ 설정 (1회, 사용자 작업)
 1. **GitHub public 푸시** — 이 리포를 원격(public)에 올린다. 카드 이미지를 raw URL로 슬랙에 띄우려면 public 필요.
 2. **슬랙 webhook** — 검토 채널의 incoming webhook URL → `SLACK_WEBHOOK_URL`.
-3. **루틴 등록** — `ROUTINE_PROMPT.md` 내용으로 Claude 루틴 등록 + 환경변수 설정.
+3. **발행 루틴 등록** — `ROUTINE_PROMPT.md` 내용으로 Claude 루틴 등록(매일) + 환경변수 설정.
+4. **소재 보충 루틴 등록** — `ADD_TOPICS_PROMPT.md` 내용으로 주 1회 루틴 등록 (소재 풀 자동 확장).
+
+## 소재 보충 (2단 체계)
+- **풀 게이지**: 발행 메시지에 "남은 소재 N/전체" 표시, 7개 이하면 ⚠️ 보충 경고.
+- **보충 루틴**: 주 1회 새 소재 발굴 → Tier1 검증 → `add_topics.py`로 추가 → 슬랙 보고.
+  추가된 소재도 발행 시 다시 검토되므로 "검증 후 자동 추가 + 사후 보고"로 운영.
 
 > 카드 이미지는 슬랙 incoming webhook의 파일첨부 불가 제약 때문에, 리포에 push 된 카드의 GitHub raw URL을 image 블록으로 첨부한다.
 

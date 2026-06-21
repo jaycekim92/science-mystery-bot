@@ -11,7 +11,7 @@ incoming webhook은 파일 첨부가 안 되므로, 카드는 리포에 push 된
   SLACK_WEBHOOK_URL  (필수)
   GIT_RAW_BASE       (선택; 없으면 git remote origin에서 자동 구성)
 """
-import argparse, os, csv, subprocess
+import argparse, os, csv, subprocess, json
 import requests
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +22,18 @@ def topic(cid):
         if r["id"] == cid:
             return r
     raise SystemExit(f"id {cid} 를 topics_pool.csv 에서 못 찾음")
+
+
+def pool_status():
+    """소재 풀 현황 (전체, 이번 사이클 남은 개수)"""
+    rows = list(csv.DictReader(open(os.path.join(BASE, "topics_pool.csv"), encoding="utf-8")))
+    total = len(rows)
+    try:
+        st = json.load(open(os.path.join(BASE, "state", "history.json"), encoding="utf-8"))
+        rem = total - len(set(st.get("posted", [])))
+    except Exception:
+        rem = total
+    return total, rem
 
 
 def raw_base():
@@ -65,8 +77,13 @@ def main():
     if img_url:
         blocks.append({"type": "image", "image_url": img_url, "alt_text": t["phenomenon"]})
     blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": args.body}})
+    total, rem = pool_status()
+    pool_line = f"📊 남은 소재 {rem}/{total}"
+    if rem <= 7:
+        pool_line += "   ·   ⚠️ 소재 보충 필요"
     blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
-        "text": ":white_check_mark: 승인  :pencil2: 수정요청  :frame_with_picture: 이미지교체  (댓글로)"}]})
+        "text": ":white_check_mark: 승인  :pencil2: 수정요청  :frame_with_picture: 이미지교체"}]})
+    blocks.append({"type": "context", "elements": [{"type": "mrkdwn", "text": pool_line}]})
 
     payload = {"text": f"검토: 그거 왜 그래? — {t['phenomenon']}", "blocks": blocks}
     r = requests.post(webhook, json=payload, timeout=15)
