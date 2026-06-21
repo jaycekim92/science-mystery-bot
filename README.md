@@ -5,18 +5,20 @@
 ## 동작 구조
 
 ```
-[루틴: 매일 정해진 시간]  ← 트리거 + 본문 작성 (클라우드, 앱 꺼져도 동작)
-      │  git pull
+[claude.ai 클라우드 루틴 · 매일]  ← 글 생성 + push (앱 꺼져도)
+  pick_topic.py      소재 1개 선택 (+ 이력)
+  (루틴이 본문 작성)   POST_GUIDE.md 톤대로
+  generate_card.py   카드 PNG
+  cards-latest.json 작성 → git push
       ▼
-  pick_topic.py     미사용 소재 1개 선택 (+ 이력 기록)
-  (루틴이 본문 작성)  POST_GUIDE.md 톤·포맷 따라
-  generate_card.py  카드 PNG 생성
-  notify_slack.py   슬랙 검토 채널로 [카드 + 본문] 전송
+[GitHub Actions · post.yml]  ← cards-latest.json push 감지 (앱 무관)
+  ci_post.py → 슬랙 검토 발송 (webhook = repo 시크릿)
       ▼
   [사람이 슬랙에서 승인/수정] → 아고라 발행 (다음 단계)
 ```
 
-루틴은 **트리거 + 글 작성**만, 나머지 기계적 작업은 전부 이 리포의 스크립트가 한다.
+글 생성·push는 **claude.ai 클라우드 루틴**, 슬랙 발송은 **GitHub Actions**. 둘 다 앱 꺼져도 돈다.
+(이슈공분봇 `~/issue-aggro-bot` 과 동일 패턴)
 
 ## 파일
 | 파일 | 역할 |
@@ -41,10 +43,10 @@ SLACK_BOT_TOKEN=xxx SLACK_CHANNEL=C123 \
 ```
 
 ## ⚙️ 설정 (1회, 사용자 작업)
-1. **GitHub public 푸시** — 이 리포를 원격(public)에 올린다. 카드 이미지를 raw URL로 슬랙에 띄우려면 public 필요.
-2. **슬랙 webhook** — 검토 채널의 incoming webhook URL → `SLACK_WEBHOOK_URL`.
-3. **발행 루틴 (원격·매일)** — `ROUTINE_PROMPT.md`로 Claude 루틴 등록. cloud라 앱 꺼져도 자동. env 설정.
-4. **소재 보충 (로컬·주 1회)** — `ADD_TOPICS_PROMPT.md` 따라 로컬에서 직접 실행. 새 소재를 눈으로 검토 후 push.
+1. **GitHub public 푸시** — 완료 (카드 raw URL + Actions용). ✅
+2. **repo 시크릿** — `gh secret set SLACK_WEBHOOK_URL` 로 검토 채널 webhook 등록. Actions 발송용. ✅
+3. **발행 루틴 (claude.ai·매일)** — `ROUTINE_PROMPT.md` 내용으로 claude.ai 클라우드 루틴 등록 + 리포 git push 권한 (이슈공분봇과 동일).
+4. **소재 보충 (로컬·주 1회)** — `ADD_TOPICS_PROMPT.md` 따라 로컬에서 직접 실행.
 
 ## 소재 보충 (2단 체계)
 - **풀 게이지**: 발행 메시지에 "남은 소재 N/전체" 표시, 7개 이하면 ⚠️ 보충 경고.
