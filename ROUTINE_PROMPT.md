@@ -5,7 +5,7 @@
 루틴은 **글 생성 + push만** 한다. 슬랙 발송은 GitHub Actions(`post.yml`)가
 `cards-latest.json` push를 감지해 자동으로 처리한다(webhook은 repo 시크릿).
 
-(소재 보충은 별개 — 로컬에서 주 1회. `ADD_TOPICS_PROMPT.md` 참고)
+(소재 보충은 별개 — 로컬 스케줄 `science-mystery-topic-refill`이 매일 체크해 7개 미만이면 자동 보충. `ADD_TOPICS_PROMPT.md` 참고)
 
 ---
 

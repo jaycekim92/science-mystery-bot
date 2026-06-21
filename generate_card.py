@@ -158,22 +158,13 @@ def build(row):
     TX = 110       # 제목 좌측(악센트 바 공간)
     brand = os.environ.get("BRAND_LABEL", "그거 왜 그래?")  # 상단 브랜드 라벨
 
-    # 상단 라벨: 우측 정렬 (브랜드 + 부제)
+    # 상단 라벨: 우측 정렬 (브랜드 + 부제) — 배경 박스 없이 텍스트만, 외곽선으로 가독성 확보
     subtitle = os.environ.get("BRAND_SUB", "일상 속 과학 미스터리")
     RX = W - 64  # 우측 기준선
-    if mode == "image":
-        pill_w = max(draw.textlength(brand, font=font(40)),
-                     draw.textlength(subtitle, font=font(24))) + 52
-        x2 = W - 38
-        ov = Image.new("RGBA", img.size, (0, 0, 0, 0))
-        ImageDraw.Draw(ov).rounded_rectangle([x2 - pill_w, 70, x2, 176], radius=22, fill=(0, 0, 0, 120))
-        img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
-        draw = ImageDraw.Draw(img)
-
     draw.text((RX, 82), brand, font=font(40), anchor="ra", fill=(255, 255, 255),
-              stroke_width=2, stroke_fill=K)
+              stroke_width=3, stroke_fill=K)
     draw.text((RX, 134), subtitle, font=font(24), anchor="ra", fill=(255, 217, 138),
-              stroke_width=1, stroke_fill=K)
+              stroke_width=2, stroke_fill=K)
 
     # 하단: 제목(phenomenon, 강조) + 후킹(hook)
     f_title, f_hook, f_src = font(66), font(36), font(22)
