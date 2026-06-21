@@ -1,0 +1,23 @@
+name: Post review cards to Slack
+
+# 루틴(claude.ai)이 cards-latest.json 을 push하면, 발송은 여기(GitHub Actions)서 한다.
+# webhook은 repo 시크릿(SLACK_WEBHOOK_URL) — 루틴 프롬프트에 평문 노출 없음.
+on:
+  push:
+    paths:
+      - "cards-latest.json"
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q certifi
+      - name: Post to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python ci_post.py
