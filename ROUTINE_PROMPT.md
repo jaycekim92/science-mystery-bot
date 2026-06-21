@@ -8,6 +8,7 @@
 매일 오전 9시, 커뮤니티 봇 "그거 왜 그래?"의 검토용 초안 1건을 만든다. 순서:
 
 1. `cd ~/science-mystery-bot && git pull` 로 최신 상태로 맞춘다.
+   (클라우드 새 환경이면 이어서 `pip3 install -r requirements.txt` 로 의존성 설치)
 2. `python3 pick_topic.py` 를 실행해 오늘의 소재 JSON 한 줄을 받는다.
    (id, phenomenon, hook, explanation, status, source, question_type, closing_question 포함)
 3. `POST_GUIDE.md` 의 3단 구조·톤 규칙을 **반드시 지켜** 피드 본문을 작성한다.

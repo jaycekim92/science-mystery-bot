@@ -21,7 +21,18 @@ os.makedirs(OUT, exist_ok=True)
 
 W, H = 1080, 1350
 UA = {"User-Agent": "science-mystery-bot/0.1 (curiosity cards)"}
-FONT = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+
+
+def _font_path():
+    # 리포 동봉 폰트 우선 → 환경(리눅스 클라우드 등) 무관하게 한글 렌더
+    for p in (os.path.join(BASE, "fonts", "NanumGothic.ttf"),
+              "/System/Library/Fonts/Supplemental/AppleGothic.ttf"):
+        if os.path.exists(p):
+            return p
+    raise SystemExit("한글 폰트를 찾을 수 없습니다 (fonts/NanumGothic.ttf 를 두세요)")
+
+
+FONT = _font_path()
 
 STYLE = {
     "뇌·기억":   {"bg": (32, 38, 55),  "c1": (91, 108, 184), "c2": (75, 168, 154), "mode": "shape"},

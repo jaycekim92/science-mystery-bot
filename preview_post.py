@@ -5,7 +5,9 @@ import csv, os, sys
 from PIL import Image, ImageDraw, ImageFont
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-FONT = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+FONT = next((p for p in (os.path.join(BASE, "fonts", "NanumGothic.ttf"),
+                         "/System/Library/Fonts/Supplemental/AppleGothic.ttf")
+             if os.path.exists(p)), None)
 W = 860
 PAD = 44
 INK = (26, 26, 26)
