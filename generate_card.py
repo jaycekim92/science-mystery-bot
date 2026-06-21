@@ -156,11 +156,12 @@ def build(row):
     draw = ImageDraw.Draw(img)
     K = (0, 0, 0)  # 외곽선(stroke) 색 — 어떤 배경에서도 글씨가 또렷하게
     TX = 110       # 제목 좌측(악센트 바 공간)
+    brand = os.environ.get("BRAND_LABEL", "그거 왜 그래?")  # 상단 브랜드 라벨
 
     # 상단 라벨 가독성: 이미지 모드는 반투명 pill 배경을 깐다
     if mode == "image":
         badge_txt = f"· {BADGE.get(row['status'], row['status'])}"
-        pill_w = max(draw.textlength("그거 왜 그래?", font=font(40)),
+        pill_w = max(draw.textlength(brand, font=font(40)),
                      draw.textlength(badge_txt, font=font(27))) + 52
         ov = Image.new("RGBA", img.size, (0, 0, 0, 0))
         ImageDraw.Draw(ov).rounded_rectangle([56, 72, 56 + pill_w, 192], radius=22, fill=(0, 0, 0, 120))
@@ -168,7 +169,7 @@ def build(row):
         draw = ImageDraw.Draw(img)
 
     # 브랜드 라벨 + 상태 배지
-    draw.text((80, 84), "그거 왜 그래?", font=font(40), fill=(255, 255, 255),
+    draw.text((80, 84), brand, font=font(40), fill=(255, 255, 255),
               stroke_width=2, stroke_fill=K)
     badge = BADGE.get(row["status"], row["status"])
     draw.text((80, 146), f"· {badge}", font=font(27), fill=(255, 217, 138),
