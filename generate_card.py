@@ -43,9 +43,9 @@ STYLE = {
 BADGE = {"정설": "과학적 사실", "유력가설": "유력한 가설",
          "논쟁중": "아직 논쟁 중", "미스터리": "아직 미스터리"}
 
-# 추상 소재(기본 도형)지만 분위기 사진이 의미 전달에 더 나은 예외 — id: (mode, keyword)
-MODE_OVERRIDE = {
-    "1": ("image", "foggy empty street"),   # 데자뷰 = 안개 낀 거리
+# 무조건 이미지. 일부 소재는 기본 키워드보다 나은 분위기 키워드를 우선 시도.
+KEYWORD_OVERRIDE = {
+    "1": "foggy empty street",   # 데자뷰 = 안개 낀 거리
 }
 
 
@@ -119,39 +119,33 @@ def gradient_overlay(img, start_y=505, strength=0.93, top_h=255, top_strength=0.
 def build(row):
     cat = row["category"]
     st = STYLE.get(cat, STYLE["뇌·기억"])
-    mode = st["mode"]
-    kw = row["image_keyword"].split(",")[0].strip()
-    ov = MODE_OVERRIDE.get(row["id"])
-    if ov:
-        mode, kw = ov
+    # 무조건 이미지: 키워드를 순차로 시도해 사진을 반드시 찾는다 (도형 모드 없음).
+    keywords = [k.strip() for k in row["image_keyword"].split(",") if k.strip()]
+    ovkw = KEYWORD_OVERRIDE.get(row["id"])
+    if ovkw:
+        keywords = [ovkw] + keywords
     credit = f"출처 · {row['source']}"
     photo_credit = ""
 
     img = Image.new("RGB", (W, H), st["bg"])
 
-    if mode == "image":
+    got = None
+    for kw in keywords:
         got = fetch_image(kw)
         if got:
-            content, attribution = got
-            try:
-                photo = Image.open(io.BytesIO(content)).convert("RGB")
-                photo = ImageOps.fit(photo, (W, H), Image.LANCZOS)
-                img.paste(photo, (0, 0))
-                img = gradient_overlay(img)
-                photo_credit = f"사진 · {attribution}"
-            except Exception as e:
-                print(f"  [이미지 처리 실패] {e}", file=sys.stderr); mode = "shape"
-        else:
-            mode = "shape"
-
-    if mode == "shape":
-        ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        d = ImageDraw.Draw(ov)
-        cx, cy, r = W // 2, 470, 190
-        d.ellipse([cx-55-r, cy-r, cx-55+r, cy+r], fill=st["c1"] + (140,))
-        d.ellipse([cx+55-r, cy-r, cx+55+r, cy+r], fill=st["c2"] + (140,))
-        d.ellipse([cx-9, cy-9, cx+9, cy+9], fill=(255, 255, 255, 230))
-        img = Image.alpha_composite(img.convert("RGBA"), ov).convert("RGB")
+            break
+    if got:
+        content, attribution = got
+        try:
+            photo = Image.open(io.BytesIO(content)).convert("RGB")
+            photo = ImageOps.fit(photo, (W, H), Image.LANCZOS)
+            img.paste(photo, (0, 0))
+            img = gradient_overlay(img)
+            photo_credit = f"사진 · {attribution}"
+        except Exception as e:
+            print(f"  [이미지 처리 실패] {e}", file=sys.stderr)
+    else:
+        print(f"  [경고] 이미지 못 찾음 → 단색 배경: {row['phenomenon']}", file=sys.stderr)
 
     draw = ImageDraw.Draw(img)
     K = (0, 0, 0)  # 외곽선(stroke) 색 — 어떤 배경에서도 글씨가 또렷하게
@@ -205,8 +199,7 @@ def main():
         row = rows.get(i)
         if not row:
             print(f"id {i} 없음"); continue
-        m = STYLE.get(row["category"], {}).get("mode")
-        print(f"[{i}] {row['phenomenon']} ({row['category']}/{m}) ...")
+        print(f"[{i}] {row['phenomenon']} ({row['category']}) ...")
         img = build(row)
         path = os.path.join(OUT, f"card_{i}.png")
         img.save(path, "PNG")
