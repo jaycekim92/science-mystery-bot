@@ -5,7 +5,7 @@ name: Publish from queue (science-mystery)
 # 이미지는 repo가 public이라 raw 직링크로 실림(미러 불필요).
 on:
   schedule:
-    - cron: "0 23,0,1,2 * * *"   # UTC 23·0·1·2 = KST 8·9·10·11시 매시간 재시도
+    - cron: "0 2,3,4,5 * * *"   # UTC 2·3·4·5 = KST 11·12·13·14시 매시간 재시도(11시 시작)
   workflow_dispatch:
 
 permissions:
