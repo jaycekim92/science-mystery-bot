@@ -1,11 +1,11 @@
 name: Publish from queue (science-mystery)
 
-# 생성·카드렌더(Pillow+Openverse 사진)는 로컬(컴퓨터 켤 때)이 하고 queue.json에 적재.
-# 발행만 여기(서버 cron)서: 큐에서 가장 오래된 1건 꺼내 슬랙 검토채널로 발송.
+# 생성·카드렌더는 로컬, 발행만 여기. ★ 멱등 발송: cron이 밀리거나 누락돼도 그날 1건은 나가도록
+# KST 아침 매시간(8·9·10·11시) 재시도하되 "오늘 이미 보냈으면 즉시 skip"(하루 1건·중복 0).
 # 이미지는 repo가 public이라 raw 직링크로 실림(미러 불필요).
 on:
   schedule:
-    - cron: "0 0 * * *"   # UTC 00:00 = KST 09:00
+    - cron: "0 23,0,1,2 * * *"   # UTC 23·0·1·2 = KST 8·9·10·11시 매시간 재시도
   workflow_dispatch:
 
 permissions:
@@ -20,13 +20,18 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -q certifi
-      - name: Publish from queue
+      - name: Publish if due (하루 1건 멱등)
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python publish_queue.py 1
+        run: |
+          TODAY=$(TZ=Asia/Seoul date +%F)
+          if [ "$(cat last_published.txt 2>/dev/null)" = "$TODAY" ]; then echo "오늘($TODAY) 이미 발송 — skip"; exit 0; fi
+          OUT=$(python publish_queue.py 1); echo "$OUT"
+          if echo "$OUT" | grep -q "큐 비어있음"; then echo "큐 비어 발송 없음 — 마커 미기록(다음 재시도)"; exit 0; fi
+          echo "$TODAY" > last_published.txt
       - name: Commit dequeued state
         run: |
           git config user.email "bot@action.local"
           git config user.name "science publisher"
-          git add queue.json
-          git diff --staged --quiet || { git commit -q -m "published from queue"; git push; }
+          git add queue.json last_published.txt
+          git diff --staged --quiet || { git commit -q -m "published (멱등 마커)"; git push; }
